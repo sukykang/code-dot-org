@@ -16,10 +16,6 @@ preload_app!
 stdout_redirect pegasus_dir('log', 'puma_stdout.log'), pegasus_dir('log', 'puma_stderr.log'), true
 directory deploy_dir('pegasus')
 
-stderr_path pegasus_dir('log/unicorn_stderr.log')
-stdout_path pegasus_dir('log/unicorn_stdout.log')
-working_directory pegasus_dir
-
 on_worker_boot do |_index|
   require 'dynamic_config/gatekeeper'
   require 'dynamic_config/dcdo'
