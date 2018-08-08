@@ -19,7 +19,7 @@ before_fork do
   ActiveRecord::Base.connection_pool.disconnect!
 end
 
-on_worker_boot do |_server, _worker|
+on_worker_boot do |_index|
   require 'dynamic_config/gatekeeper'
   require 'dynamic_config/dcdo'
   Gatekeeper.after_fork

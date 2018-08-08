@@ -32,13 +32,17 @@ module CdoApps
     end
 
     template init_script do
-      source 'unicorn.sh.erb'
+      app_server = node['cdo-apps']['app_server']
+      src_file = "#{app_root}/config/#{app_server}.rb"
+
+      source "#{app_server}.sh.erb"
       user 'root'
       group 'root'
       mode '0755'
-      variables src_file: "#{app_root}/config/unicorn.rb",
+      variables src_file: src_file,
         app_root: app_root,
-        pid_file: "#{app_root}/config/unicorn.rb.pid",
+        pid_file: "#{src_file}.pid",
+        socket_path: node['nginx_enabled'] && node['cdo-nginx']['socket_path'],
         user: user,
         env: node.chef_environment,
         export_env: node['cdo-apps']['bundle_env'].
@@ -79,7 +83,7 @@ module CdoApps
       action [:enable]
 
       # Restart when Ruby is upgraded.
-      # Full restart needed because the path to Unicorn executable changed.
+      # Full restart needed because the path to app-server executable changed.
       subscribes :restart, "apt_package[ruby#{node['cdo-ruby']['version']}]", :delayed if node['cdo-ruby']
 
       # Reload when gem bundle is updated.
