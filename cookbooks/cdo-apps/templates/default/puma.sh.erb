@@ -99,7 +99,7 @@ upgrade)
                 # Wait $UPGRADE_DELAY seconds for the old workers to exit.
                 n=$UPGRADE_DELAY
                 while test $n -ge 0 &&
-                      test x"$old_workers" == x"$(get_workers)"
+                      test x"$old_workers" = x"$(get_workers)"
                 do
                         printf '.' && sleep 1 && n=$(( $n - 1 ))
                 done
