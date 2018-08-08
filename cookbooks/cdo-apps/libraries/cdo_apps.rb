@@ -42,7 +42,7 @@ module CdoApps
       variables src_file: src_file,
         app_root: app_root,
         pid_file: "#{src_file}.pid",
-        socket_path: node['nginx_enabled'] && node['cdo-nginx']['socket_path'],
+        socket_path: node['cdo-apps']['nginx_enabled'] && node['cdo-nginx']['socket_path'],
         user: user,
         env: node.chef_environment,
         export_env: node['cdo-apps']['bundle_env'].
