@@ -33,10 +33,27 @@ end
 
 file '99-cdo.conf' do
   path "/etc/rsyslog.d/#{name}"
-  content <<FILE
+  content <<RSYSLOG
+# Format syslog message as JSON
+module(load="mmjsonparse")
+action(type="mmjsonparse")
+template(name="json_syslog" type="list") {
+  constant(value="{")
+  constant(value="\"@timestamp\":\"")    property(name="timereported" dateFormat="rfc3339")
+  constant(value="\",\"host\":\"")       property(name="hostname")
+  constant(value="\",\"severity\":\"")   property(name="syslogseverity-text")
+  constant(value="\",\"facility\":\"")   property(name="syslogfacility-text")
+  constant(value="\",\"syslog-tag\":\"") property(name="syslogtag")
+  constant(value="\",\"source\":\"")     property(name="programname")
+  property(name="$!all-json" position.from="2")
+}
+
+Module (path="builtin:ompipe")
+*.* action(type="ompipe" template="json_syslog" Pipe="/var/log/cloudwatch")
+
 Module (path="builtin:ompipe")
 *.* action(type="ompipe" Pipe="#{fifo}")
-FILE
+RSYSLOG
 end
 
 service 'rsyslog' do
