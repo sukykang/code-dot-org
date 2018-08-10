@@ -44,15 +44,12 @@ template(name="json_syslog" type="list") {
   constant(value="\",\"severity\":\"")   property(name="syslogseverity-text")
   constant(value="\",\"facility\":\"")   property(name="syslogfacility-text")
   constant(value="\",\"syslog-tag\":\"") property(name="syslogtag")
-  constant(value="\",\"source\":\"")     property(name="programname")
+  constant(value="\",\"program\":\"")     property(name="programname")
   property(name="$!all-json" position.from="2")
 }
 
 Module (path="builtin:ompipe")
-*.* action(type="ompipe" template="json_syslog" Pipe="/var/log/cloudwatch")
-
-Module (path="builtin:ompipe")
-*.* action(type="ompipe" Pipe="#{fifo}")
+*.* action(type="ompipe" template="json_syslog" Pipe="#{fifo}")
 RSYSLOG
 end
 
