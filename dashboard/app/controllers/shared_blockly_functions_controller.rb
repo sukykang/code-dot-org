@@ -4,6 +4,7 @@ class SharedBlocklyFunctionsController < ApplicationController
   load_and_authorize_resource
 
   def new
+    @shared_blockly_function.block_type = 'behavior'
     render 'edit'
   end
 
@@ -25,8 +26,7 @@ class SharedBlocklyFunctionsController < ApplicationController
   private
 
   def load_block_pool
-    @@level ||= Level.find_by_key('New Sprite Lab Project')
-    @block_pool = @@level.shared_blocks
+    @block_pool = Block.for('Gamelab', 'Dancelab', 'Vanilla')
   end
 
   def create_params
@@ -34,6 +34,13 @@ class SharedBlocklyFunctionsController < ApplicationController
   end
 
   def update_params
-    params.require(:shared_blockly_function).permit(:name, :description, :arguments, :stack)
+    params.require(:shared_blockly_function).permit(
+      :name,
+      :description,
+      :arguments,
+      :stack,
+      :block_type,
+      :level_type,
+    )
   end
 end

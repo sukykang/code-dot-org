@@ -30,7 +30,14 @@ namespace :seed do
     'course2',
     'course3',
     'course4',
-    'coursea',
+    'coursea-2017',
+    'courseb-2017',
+    'coursec-2017',
+    'coursed-2017',
+    'coursee-2017',
+    'coursef-2017',
+    'express-2017',
+    'pre-express-2017',
     'coursea-2018',
     'csp1-2017',
     'csp2-2017',
@@ -53,6 +60,7 @@ namespace :seed do
     'csp-create-2018',
     'csppostap-2018',
     'events',
+    'express-2017',
     'flappy',
     'frozen',
     'hero',
@@ -93,7 +101,16 @@ namespace :seed do
     end
   end
 
-  SCRIPTS_DEPENDENCIES = [:environment, :games, :custom_levels, :dsls, :blocks].freeze
+  SCRIPTS_DEPENDENCIES = [
+    :environment,
+    :games,
+    :custom_levels,
+    :dsls,
+    :blocks,
+    :shared_blockly_functions,
+    :libraries,
+  ].freeze
+
   task scripts: SCRIPTS_DEPENDENCIES do
     update_scripts(incremental: false)
   end
@@ -150,12 +167,16 @@ namespace :seed do
     end
   end
 
-  task import_custom_levels: :environment do
-    LevelLoader.load_custom_levels
+  task blocks: :environment do
+    Block.load_records
   end
 
-  task blocks: :environment do
-    Block.load_blocks
+  task shared_blockly_functions: :environment do
+    SharedBlocklyFunction.load_records
+  end
+
+  task libraries: :environment do
+    Library.load_records
   end
 
   # Generate the database entry from the custom levels json file
@@ -201,6 +222,15 @@ namespace :seed do
 
   task state_cs_offerings: :environment do
     Census::StateCsOffering.seed
+  end
+
+  # Seed school course offering data where the courses are taught by outside curriculum providers, such as TEALS.
+  task other_curriculum_offerings: :environment do
+    Census::OtherCurriculumOffering.seed
+  end
+
+  task sample_data: :environment do
+    SampleData.seed
   end
 
   MAX_LEVEL_SOURCES = 10_000
