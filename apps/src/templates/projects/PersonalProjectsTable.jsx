@@ -24,8 +24,8 @@ export const COLUMNS = {
   THUMBNAIL: 0,
   PROJECT_NAME: 1,
   APP_TYPE: 2,
-  LAST_PUBLISHED: 3,
-  LAST_FEATURED: 4,
+  LAST_EDITED: 3,
+  LAST_PUBLISHED: 4,
   ACTIONS: 5,
 };
 
@@ -132,7 +132,7 @@ class PersonalProjectsTable extends React.Component {
   };
 
   state = {
-    [COLUMNS.PROJECT_NAME]: {
+    [COLUMNS.LAST_EDITED]: {
       direction: 'desc',
       position: 0
     }
@@ -187,6 +187,7 @@ class PersonalProjectsTable extends React.Component {
             ...tableLayoutStyles.headerCell,
             ...styles.headerCellName,
           }},
+          transforms: [sortable],
         },
         cell: {
           format: nameFormatter,

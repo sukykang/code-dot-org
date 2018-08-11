@@ -97,8 +97,8 @@ export function cancelRenamingProject(projectId) {
   return {type: CANCEL_RENAMING_PROJECT, projectId};
 }
 
-export function saveSuccess(projectId) {
-  return {type: SAVE_SUCCESS, projectId};
+export function saveSuccess(projectId, lastUpdatedAt) {
+  return {type: SAVE_SUCCESS, projectId, lastUpdatedAt};
 }
 
 export function saveFailure(projectId) {
@@ -181,9 +181,11 @@ const initialPersonalProjectsList = [];
 function personalProjectsList(state = initialPersonalProjectsList, action) {
   switch (action.type) {
     case SET_PERSONAL_PROJECTS_LIST:
+      var {personalProjectsList} = action;
+      var sortedProjects = _.orderBy(personalProjectsList, ['updatedAt'], ['desc']);
       return {
         ...state,
-        projects: action.personalProjectsList,
+        projects: sortedProjects,
       };
     case PUBLISH_SUCCESS:
       var publishedChannel = action.lastPublishedProjectData.channel;
@@ -191,7 +193,11 @@ function personalProjectsList(state = initialPersonalProjectsList, action) {
       var publishedProjectIndex = state.projects.findIndex(project => project.channel === publishedChannel);
 
       var updatedProjects = [...state.projects];
-      updatedProjects[publishedProjectIndex].publishedAt = action.lastPublishedAt;
+      updatedProjects[publishedProjectIndex] = {
+        ...updatedProjects[publishedProjectIndex],
+        publishedAt: action.lastPublishedAt,
+        updatedAt: new Date().toLocaleString()
+      };
 
       return {
         ...state,
@@ -208,7 +214,11 @@ function personalProjectsList(state = initialPersonalProjectsList, action) {
       var unpublishedProjectIndex = state.projects.findIndex(project => project.channel === unpublishedChannel);
 
       var newProjects = [...state.projects];
-      newProjects[unpublishedProjectIndex].publishedAt = null;
+      newProjects[unpublishedProjectIndex] = {
+        ...newProjects[unpublishedProjectIndex],
+        publishedAt: null,
+        updatedAt: new Date().toLocaleString()
+      };
 
       return {
         ...state,
@@ -294,6 +304,7 @@ function personalProjectsList(state = initialPersonalProjectsList, action) {
         name: recentlySavedProject.updatedName,
         isSaving: false,
         isEditing: false,
+        updatedAt: action.lastUpdatedAt
       };
 
       return {
@@ -369,7 +380,7 @@ export function unpublishProject(projectId) {
   };
 }
 
-const updateProjectNameOnServer = (project) => {
+const updateProjectNameOnServer = (project, lastUpdatedAt) => {
   return (dispatch) => {
     $.ajax({
       url: `/v3/channels/${project.id}`,
@@ -378,14 +389,14 @@ const updateProjectNameOnServer = (project) => {
       contentType: 'application/json;charset=UTF-8',
       data: JSON.stringify(project)
     }).done((data) => {
-      dispatch(saveSuccess(project.id));
+      dispatch(saveSuccess(project.id, lastUpdatedAt));
     }).fail((jqXhr, status) => {
       dispatch(saveFailure(project.id));
     });
   };
 };
 
-export const saveProjectName = (projectId, updatedName) => {
+export const saveProjectName = (projectId, updatedName, lastUpdatedAt) => {
   return (dispatch) => {
     fetchProjectToUpdate(projectId,
     (error, data) => {
@@ -393,7 +404,8 @@ export const saveProjectName = (projectId, updatedName) => {
         console.error(error);
       } else {
         data.name = updatedName;
-        dispatch(updateProjectNameOnServer(data));
+        data.updatedAt = lastUpdatedAt;
+        dispatch(updateProjectNameOnServer(data, lastUpdatedAt));
       }
     });
   };
